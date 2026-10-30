@@ -41,9 +41,9 @@ export function broadcast(payload, { except } = {}) {
   }
 }
 
-export function notify(req, payload) {
+export function notify(req, payload, type = 'change') {
   const actor = req.user ? { id: req.user.id, name: req.user.name } : null;
-  broadcast({ type: 'change', ...payload, actor }, { except: req.get('x-kan-client') });
+  broadcast({ type, ...payload, actor }, { except: req.get('x-kan-client') });
 }
 
 export function addClient(req, res) {
@@ -55,6 +55,8 @@ export function addClient(req, res) {
   };
   clients.add(client);
 
+  req.socket?.setTimeout?.(0);
+  req.socket?.setNoDelay?.(true);
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache, no-transform',

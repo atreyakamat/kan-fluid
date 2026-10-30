@@ -155,12 +155,21 @@ export async function seedIfEmpty() {
 
     const [labelRows] = await conn.query('SELECT id, name FROM labels');
     const labelIds = new Map(labelRows.map((row) => [row.name, row.id]));
-    const users = config.users.map((u) => u.name);
+    const [userRows] = await conn.query('SELECT id, name FROM users WHERE active = 1 ORDER BY id');
+    const users = userRows.map((row) => ({ id: row.id, name: row.name }));
+    if (!users.length) throw new Error('Cannot seed demo cards without an active user');
+    const userNames = users.map((u) => u.name);
+    const owner = users[0];
 
-    for (const card of demoCards(columns, users)) {
+    const doneColumnId = columns.Done;
+    for (const card of demoCards(columns, userNames)) {
+      const creator =
+        users.find((u) => u.name === card.assignee) ?? owner;
       const [result] = await conn.query(
-        `INSERT INTO cards (board_id, column_id, title, description, priority, due_date, assignee, position)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO cards
+           (board_id, column_id, title, description, priority, due_date, assignee,
+            created_by, created_by_name, position)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           boardId,
           card.column,
@@ -169,6 +178,8 @@ export async function seedIfEmpty() {
           card.priority ?? 'medium',
           card.due ?? null,
           card.assignee ?? '',
+          creator.id,
+          creator.name,
           card.position ?? 0,
         ],
       );
@@ -180,6 +191,22 @@ export async function seedIfEmpty() {
             labelId,
           ]);
         }
+      }
+
+      const createdOffset = card.column === doneColumnId ? -14 : -4;
+      await conn.query(
+        `INSERT INTO card_activity
+           (board_id, card_id, card_title, user_id, user_name, type, detail, from_value, to_value, created_at)
+         VALUES (?, ?, ?, ?, ?, 'created', 'Created the card', '', 'Backlog', DATE_SUB(NOW(), INTERVAL ? DAY))`,
+        [boardId, result.insertId, card.title, creator.id, creator.name, -createdOffset],
+      );
+      if (card.column === doneColumnId) {
+        await conn.query(
+          `INSERT INTO card_activity
+             (board_id, card_id, card_title, user_id, user_name, type, detail, from_value, to_value, created_at)
+           VALUES (?, ?, ?, ?, ?, 'completed', 'Completed in Done', 'Review', 'Done', DATE_SUB(NOW(), INTERVAL 2 DAY))`,
+          [boardId, result.insertId, card.title, creator.id, creator.name],
+        );
       }
     }
 

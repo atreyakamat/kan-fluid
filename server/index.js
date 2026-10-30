@@ -3,7 +3,7 @@ import express from 'express';
 import { config } from './config.js';
 import { api } from './api.js';
 import { initDb, closeDb } from './db.js';
-import { seedIfEmpty } from './seed.js';
+import { seedIfEmpty, seedUsers } from './seed.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -25,11 +25,12 @@ app.get('*', (req, res) => {
 
 async function main() {
   await initDb();
+  await seedUsers();
   await seedIfEmpty();
 
   const server = app.listen(config.port, '0.0.0.0', () => {
     console.log(`\n  Kan is running → http://localhost:${config.port}`);
-    console.log(`  ${config.users.length} static account(s): ${config.users.map((u) => u.name).join(', ')}\n`);
+    console.log('  First run? Sign in with the bootstrap admin account.\n');
   });
 
   const shutdown = async (signal) => {

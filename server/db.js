@@ -98,12 +98,15 @@ const SCHEMA = [
     priority VARCHAR(10) NOT NULL DEFAULT 'medium',
     due_date DATE NULL,
     assignee VARCHAR(80) NOT NULL DEFAULT '',
+    created_by INT NULL,
+    created_by_name VARCHAR(80) NOT NULL DEFAULT '',
     position INT NOT NULL DEFAULT 0,
     archived TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_cards_board FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
     CONSTRAINT fk_cards_column FOREIGN KEY (column_id) REFERENCES board_columns(id) ON DELETE CASCADE,
+    CONSTRAINT fk_cards_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_cards_board (board_id, archived),
     INDEX idx_cards_column (column_id, position)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
@@ -135,11 +138,38 @@ const SCHEMA = [
     CONSTRAINT fk_comments_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_comments_card (card_id, created_at)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+
+  `CREATE TABLE IF NOT EXISTS card_activity (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    board_id INT NOT NULL,
+    card_id INT NULL,
+    card_title VARCHAR(255) NOT NULL DEFAULT '',
+    user_id INT NULL,
+    user_name VARCHAR(80) NOT NULL DEFAULT '',
+    type VARCHAR(30) NOT NULL,
+    detail VARCHAR(255) NOT NULL DEFAULT '',
+    from_value VARCHAR(120) NOT NULL DEFAULT '',
+    to_value VARCHAR(120) NOT NULL DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_activity_board FOREIGN KEY (board_id) REFERENCES boards(id) ON DELETE CASCADE,
+    CONSTRAINT fk_activity_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE SET NULL,
+    CONSTRAINT fk_activity_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_activity_board (board_id, created_at),
+    INDEX idx_activity_card (card_id, created_at)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+];
+
+const MIGRATIONS = [
+  `ALTER TABLE cards ADD COLUMN IF NOT EXISTS created_by INT NULL AFTER assignee`,
+  `ALTER TABLE cards ADD COLUMN IF NOT EXISTS created_by_name VARCHAR(80) NOT NULL DEFAULT '' AFTER created_by`,
 ];
 
 export async function initDb() {
   await waitForServer();
   for (const statement of SCHEMA) {
+    await pool.query(statement);
+  }
+  for (const statement of MIGRATIONS) {
     await pool.query(statement);
   }
   await pool.query('SELECT 1');

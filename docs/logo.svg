@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Kan logo">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.55" y2="1">
+      <stop offset="0" stop-color="#a9defa" />
+      <stop offset="0.48" stop-color="#63b5e3" />
+      <stop offset="1" stop-color="#2f86c4" />
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.75" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="9" stdDeviation="9" flood-color="#1d5c8a" flood-opacity="0.32" />
+    </filter>
+  </defs>
+  <g filter="url(#soft)">
+    <rect width="128" height="128" rx="30" fill="url(#sky)" />
+    <rect x="2" y="2" width="124" height="124" rx="28" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2" />
+    <path d="M32 6h64a26 26 0 0 1 26 26v18c-16 6-34 8-62 8S8 54 6 50V30A24 24 0 0 1 30 6z" fill="url(#gloss)" />
+    <rect x="27" y="36" width="17" height="54" rx="6" fill="#ffffff" />
+    <rect x="55.5" y="36" width="17" height="74" rx="6" fill="#ffffff" />
+    <rect x="84" y="36" width="17" height="42" rx="6" fill="#ffffff" />
+  </g>
+</svg>

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#e8f5fe" />
+    <meta name="color-scheme" content="light" />
+    <title>Kan · Work board</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='.6' y2='1'%3E%3Cstop offset='0' stop-color='%23a9defa'/%3E%3Cstop offset='.5' stop-color='%235fb4e2'/%3E%3Cstop offset='1' stop-color='%232f86c4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='17' fill='url(%23g)'/%3E%3Crect width='64' height='30' rx='17' fill='white' opacity='.22'/%3E%3Crect x='13' y='17' width='9' height='27' rx='3' fill='white'/%3E%3Crect x='27.5' y='17' width='9' height='37' rx='3' fill='white'/%3E%3Crect x='42' y='17' width='9' height='21' rx='3' fill='white'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true">
+      <span class="orb orb-1"></span>
+      <span class="orb orb-2"></span>
+      <span class="orb orb-3"></span>
+    </div>
+
+    <div id="login" class="login hidden">
+      <div class="login-card">
+        <div class="logo logo-lg" aria-hidden="true"><i></i><i></i><i></i></div>
+        <h1>Welcome back</h1>
+        <p class="login-sub">Sign in to your Kan board</p>
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="login-username">Username</label>
+            <input id="login-username" name="username" autocomplete="username" spellcheck="false" required />
+          </div>
+          <div class="field">
+            <label for="login-password">Password</label>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <p id="login-error" class="form-error" role="alert"></p>
+          <button id="login-submit" class="btn primary block" type="submit">
+            <span>Sign in</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </button>
+        </form>
+        <p class="login-note">Accounts are defined in <code>.env</code> → <code>APP_USERS</code></p>
+      </div>
+    </div>
+
+    <div id="app" class="app hidden">
+      <aside class="sidebar" id="sidebar" aria-label="Boards and labels">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="brand-text">
+            <strong>Kan</strong>
+            <span>Work board</span>
+          </div>
+          <button class="icon-btn sidebar-close" id="btn-sidebar-close" title="Close menu" aria-label="Close menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <div class="side-section">
+          <div class="side-head">
+            <span>Boards</span>
+            <button class="icon-btn" id="btn-new-board" title="New board" aria-label="New board">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+            </button>
+          </div>
+          <div id="board-list" class="board-list"></div>
+        </div>
+
+        <div class="side-section side-grow">
+          <div class="side-head">
+            <span>Labels</span>
+            <button class="text-btn" id="btn-manage-labels">Manage</button>
+          </div>
+          <div id="side-labels" class="label-cloud"></div>
+          <p class="side-hint">Global categories — available on every board.</p>
+        </div>
+
+        <div class="side-footer">
+          <div id="user-chip" class="user-chip"></div>
+          <button class="icon-btn" id="btn-logout" title="Sign out" aria-label="Sign out">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M11 8l4 4-4 4M3 12h11" /></svg>
+          </button>
+        </div>
+      </aside>
+
+      <div id="scrim" class="scrim hidden"></div>
+
+      <main class="main">
+        <header class="topbar">
+          <button class="icon-btn menu-btn" id="btn-menu" title="Menu" aria-label="Open menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+          </button>
+          <div id="board-head" class="board-head"></div>
+          <div id="topbar-actions" class="topbar-actions">
+            <button class="icon-btn" id="btn-board-settings" title="Board settings" aria-label="Board settings">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /><circle cx="9" cy="7" r="2" /><circle cx="15" cy="12" r="2" /><circle cx="7" cy="17" r="2" /></svg>
+            </button>
+            <button class="btn primary" id="btn-new-card">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+              <span>New card</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="filterbar" id="filterbar">
+          <div class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+            <input id="filter-q" type="search" placeholder="Search cards…" autocomplete="off" spellcheck="false" />
+            <kbd>/</kbd>
+          </div>
+          <div class="filter-group">
+            <div class="popover-wrap">
+              <button class="btn filter-btn" id="btn-label-filter">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 12 22l-9-9V4h9l8.6 8.6a2 2 0 0 1 0 2.8Z" /><circle cx="7.5" cy="7.5" r="1.2" /></svg>
+                <span>Labels</span>
+                <span id="label-filter-count" class="pill hidden">0</span>
+              </button>
+              <div id="label-popover" class="popover hidden"></div>
+            </div>
+            <select id="filter-assignee" class="select" title="Filter by assignee"></select>
+            <select id="filter-priority" class="select" title="Filter by priority">
+              <option value="">All priorities</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <button class="btn filter-btn" id="btn-archived">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1" /><path d="M5 8v11h14V8M10 12h4" /></svg>
+              <span>Archive</span>
+              <span id="archived-count" class="pill hidden">0</span>
+            </button>
+            <button class="btn ghost hidden" id="btn-clear-filters">Clear</button>
+          </div>
+          <div class="filter-spacer"></div>
+          <div class="view-hint" id="view-hint"></div>
+        </div>
+
+        <div class="board" id="board"></div>
+      </main>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toasts" class="toasts" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

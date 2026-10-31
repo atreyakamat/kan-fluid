@@ -42,6 +42,9 @@ const ICONS = {
   chevronLeft: '<path d="m14 6-6 6 6 6"/>',
   chevronRight: '<path d="m10 6 6 6-6 6"/>',
   sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/>',
+  droplet:
+    '<path d="M12 3c3.2 4 6 7.4 6 10.8a6 6 0 1 1-12 0C6 10.4 8.8 7 12 3Z"/><path d="M9.5 15.2c0 1.4 1 2.4 2.5 2.4" opacity=".6"/>',
+  panel: '<rect x="3" y="4" width="18" height="16" rx="2.2"/><path d="M9 4v16"/>',
 };
 
 
@@ -337,14 +340,31 @@ function hslToRgb(h, s, l) {
   };
 }
 
-function accentPalette(hex, dark) {
+const THEME_MODES = ['light', 'dark', 'glass'];
+const THEME_META = {
+  light: { label: 'Light', sub: 'Glacier Sky', icon: 'sun', chrome: '#e8f5fe' },
+  dark: { label: 'Dark', sub: 'True Black', icon: 'moon', chrome: '#000000' },
+  glass: { label: 'Glass', sub: 'Refraction', icon: 'droplet', chrome: '#bfe4ff' },
+};
+
+function normalizeTheme(value) {
+  return THEME_MODES.includes(value) ? value : 'light';
+}
+
+function currentTheme() {
+  return normalizeTheme(document.documentElement.dataset.theme);
+}
+
+function accentPalette(hex, mode) {
   const base = hexToRgb(hex) ?? hexToRgb(DEFAULT_ACCENT);
   const { h, s } = rgbToHsl(base);
   const sat = clamp(s, 25, 92);
+  const dark = mode === 'dark';
+  const glass = mode === 'glass';
 
-  const accentL = dark ? 68 : 56;
-  const strongL = dark ? 74 : 42;
-  const softL = dark ? 60 : 56;
+  const accentL = dark ? 68 : glass ? 54 : 56;
+  const strongL = dark ? 74 : glass ? 40 : 42;
+  const softL = dark ? 60 : glass ? 58 : 56;
 
   const primaryTop = hsl(h, sat, dark ? 78 : 82);
   const primaryMid = hsl(h, sat, dark ? 60 : 66);
@@ -356,25 +376,59 @@ function accentPalette(hex, dark) {
       ? '#0b3552'
       : '#ffffff';
 
-  // Backgrounds
-  const bgA = dark ? hsl(h, Math.min(sat, 42), 7) : hsl(h, Math.min(sat * 0.4, 55), 97);
-  const bgB = dark ? hsl(h, Math.min(sat, 40), 9) : hsl(h, Math.min(sat * 0.55, 60), 94);
-  const bgC = dark ? hsl(h, Math.min(sat, 38), 10) : hsl(h, Math.min(sat * 0.65, 65), 90);
-  const bgD = dark ? hsl(h, Math.min(sat, 36), 7) : hsl(h, Math.min(sat * 0.7, 70), 85);
-  const bgGlow = dark ? hsla(h, sat, 50, 0.35) : hsla(h, sat, 78, 0.95);
-  const bgGlow2 = dark ? hsla(h, sat, 42, 0.5) : hsla(h, sat, 70, 0.85);
-  const orb2 = dark ? hsl(h, sat, 36) : hsl(h, sat, 78);
-  const orb3 = dark ? hsl(h, sat, 28) : hsl(h, sat, 90);
-  const orb4 = dark ? hsl(h, sat, 32) : hsl(h, sat, 74);
+  // Backgrounds: dark is near-black (OLED-style) with only faint accent glow;
+  // glass is vivid and saturated so frosted panels have real color to refract.
+  let bgA;
+  let bgB;
+  let bgC;
+  let bgD;
+  let bgGlow;
+  let bgGlow2;
+  let orb2;
+  let orb3;
+  let orb4;
+
+  if (dark) {
+    const darkSat = Math.min(sat * 0.55, 34);
+    bgA = hsl(h, darkSat, 2.5);
+    bgB = hsl(h, darkSat, 3.2);
+    bgC = hsl(h, darkSat, 4);
+    bgD = hsl(h, darkSat * 0.8, 1.5);
+    bgGlow = hsla(h, sat, 28, 0.16);
+    bgGlow2 = hsla(h, sat, 22, 0.22);
+    orb2 = hsl(h, sat, 20);
+    orb3 = hsl(h, sat, 14);
+    orb4 = hsl(h, sat, 17);
+  } else if (glass) {
+    bgA = hsl(h, Math.min(sat * 0.9, 78), 92);
+    bgB = hsl(h, Math.min(sat * 1.05, 85), 82);
+    bgC = hsl(h, Math.min(sat * 1.1, 90), 72);
+    bgD = hsl(h, Math.min(sat * 1.1, 92), 62);
+    bgGlow = hsla(h, sat, 82, 0.95);
+    bgGlow2 = hsla(h, sat, 68, 0.9);
+    orb2 = hsl(h, sat, 82);
+    orb3 = hsl(h, sat, 92);
+    orb4 = hsl(h, sat, 72);
+  } else {
+    bgA = hsl(h, Math.min(sat * 0.4, 55), 97);
+    bgB = hsl(h, Math.min(sat * 0.55, 60), 94);
+    bgC = hsl(h, Math.min(sat * 0.65, 65), 90);
+    bgD = hsl(h, Math.min(sat * 0.7, 70), 85);
+    bgGlow = hsla(h, sat, 78, 0.95);
+    bgGlow2 = hsla(h, sat, 70, 0.85);
+    orb2 = hsl(h, sat, 78);
+    orb3 = hsl(h, sat, 90);
+    orb4 = hsl(h, sat, 74);
+  }
 
   return {
     '--accent': hsl(h, sat, accentL),
     '--accent-2': hsl(h, sat, dark ? 78 : 72),
     '--accent-strong': hsl(h, sat, strongL),
-    '--accent-soft': hsla(h, sat, softL, dark ? 0.22 : 0.18),
+    '--accent-soft': hsla(h, sat, softL, dark ? 0.22 : glass ? 0.28 : 0.18),
     '--accent-ink': ink,
-    '--accent-shadow': hsla(h, sat, dark ? 20 : 45, dark ? 0.85 : 0.85),
-    '--accent-glow': hsla(h, sat, dark ? 52 : 62, 0.55),
+    '--accent-shadow': hsla(h, sat, dark ? 14 : 45, dark ? 0.9 : 0.85),
+    '--accent-glow': hsla(h, sat, dark ? 40 : 62, dark ? 0.4 : 0.55),
     '--primary-1': primaryTop,
     '--primary-2': primaryMid,
     '--primary-3': primaryBottom,
@@ -393,8 +447,8 @@ function accentPalette(hex, dark) {
 function applyAccent(hex) {
   const target = hex || state.board?.accent || DEFAULT_ACCENT;
   state.accent = target;
-  const dark = document.documentElement.dataset.theme === 'dark';
-  const palette = accentPalette(target, dark);
+  const mode = currentTheme();
+  const palette = accentPalette(target, mode);
   const root = document.documentElement.style;
   for (const [key, value] of Object.entries(palette)) {
     root.setProperty(key, value);
@@ -403,41 +457,62 @@ function applyAccent(hex) {
 
 function updateThemeIcon() {
   if (!ui.themeIcon) return;
-  const dark = document.documentElement.dataset.theme === 'dark';
-  ui.themeIcon.innerHTML = icon(dark ? 'sun' : 'moon');
+  const mode = currentTheme();
+  const meta = THEME_META[mode];
+  ui.themeIcon.innerHTML = icon(meta.icon);
   if (ui.btnTheme) {
-    const label = dark ? 'Switch to light mode' : 'Switch to dark mode';
+    const nextMode = THEME_MODES[(THEME_MODES.indexOf(mode) + 1) % THEME_MODES.length];
+    const label = `${meta.label} mode — switch to ${THEME_META[nextMode].label}`;
     ui.btnTheme.title = label;
     ui.btnTheme.setAttribute('aria-label', label);
   }
   $$('[data-theme-choice]').forEach((btn) => {
-    const on = btn.dataset.themeChoice === (dark ? 'dark' : 'light');
+    const on = btn.dataset.themeChoice === mode;
     btn.classList.toggle('on', on);
     btn.setAttribute('aria-pressed', String(on));
   });
 }
 
 function applyTheme(theme, { persist = true } = {}) {
-  const next = theme === 'dark' ? 'dark' : 'light';
-  document.documentElement.dataset.theme = next;
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', next === 'dark' ? '#081624' : '#e8f5fe');
-  try {
-    localStorage.setItem(THEME_KEY, next);
-  } catch {
-    /* ignore */
+  const next = normalizeTheme(theme);
+
+  const run = () => {
+    document.documentElement.dataset.theme = next;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', THEME_META[next].chrome);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      /* ignore */
+    }
+    if (state.user) state.user.theme = next;
+    applyAccent(state.board?.accent);
+    updateThemeIcon();
+  };
+
+  // Smooth cross-fade on browsers that support the View Transitions API;
+  // otherwise fall back to a brief, targeted CSS transition so the switch
+  // never reads as an abrupt blink.
+  if (typeof document.startViewTransition === 'function') {
+    document.startViewTransition(run);
+  } else {
+    document.documentElement.classList.add('theme-anim');
+    run();
+    window.clearTimeout(applyTheme._t);
+    applyTheme._t = window.setTimeout(() => {
+      document.documentElement.classList.remove('theme-anim');
+    }, 650);
   }
-  if (state.user) state.user.theme = next;
-  applyAccent(state.board?.accent);
-  updateThemeIcon();
+
   if (persist && state.user) {
     api('/auth/me', { method: 'PATCH', body: { theme: next } }).catch(() => {});
   }
 }
 
 function toggleTheme() {
-  const dark = document.documentElement.dataset.theme === 'dark';
-  applyTheme(dark ? 'light' : 'dark');
+  const mode = currentTheme();
+  const next = THEME_MODES[(THEME_MODES.indexOf(mode) + 1) % THEME_MODES.length];
+  applyTheme(next);
 }
 
 /* ── Presence ─────────────────────────────────────────────────────────────── */
@@ -2061,7 +2136,7 @@ async function endTour(mark = true) {
 
 function openAccountModal() {
   if (!state.user) return;
-  const dark = document.documentElement.dataset.theme === 'dark';
+  const currentMode = currentTheme();
   const modal = openModal(
     `
     <div class="account-hero">
@@ -2084,8 +2159,12 @@ function openAccountModal() {
       <div class="account-section">
         <span class="field-label">Appearance</span>
         <div class="theme-choice">
-          <button class="theme-option ${dark ? '' : 'on'}" data-theme-choice="light" aria-pressed="${!dark}">${icon('sun')}<span>Light</span><em>Glacier Sky</em></button>
-          <button class="theme-option ${dark ? 'on' : ''}" data-theme-choice="dark" aria-pressed="${dark}">${icon('moon')}<span>Dark</span><em>Deep Night</em></button>
+          ${THEME_MODES.map(
+            (mode) => `
+            <button class="theme-option ${currentMode === mode ? 'on' : ''}" data-theme-choice="${mode}" aria-pressed="${currentMode === mode}">${icon(
+              THEME_META[mode].icon,
+            )}<span>${THEME_META[mode].label}</span><em>${THEME_META[mode].sub}</em></button>`,
+          ).join('')}
         </div>
       </div>
       <div class="account-actions">

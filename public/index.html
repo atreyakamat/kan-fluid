@@ -14,7 +14,7 @@
       (() => {
         try {
           const stored = localStorage.getItem('kan.theme');
-          document.documentElement.dataset.theme = stored === 'dark' ? 'dark' : 'light';
+          document.documentElement.dataset.theme = ['dark', 'glass'].includes(stored) ? stored : 'light';
         } catch {
           document.documentElement.dataset.theme = 'light';
         }

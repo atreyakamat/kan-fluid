@@ -75,6 +75,7 @@
   --bg-d: #cfe6f8;
   --bg-glow: rgba(201, 232, 255, 0.95);
   --bg-glow-2: rgba(191, 223, 246, 0.85);
+  --bg-sheen: rgba(255, 255, 255, 0.95);
   --orb-2: #8fccf3;
   --orb-3: #cfe9ff;
   --orb-4: #7cc4ef;
@@ -169,6 +170,11 @@
   inherits: true;
   initial-value: rgba(191, 223, 246, 0.85);
 }
+@property --bg-sheen {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(255, 255, 255, 0.95);
+}
 @property --orb-2 {
   syntax: "<color>";
   inherits: true;
@@ -203,6 +209,7 @@
     --bg-d 0.6s var(--ease),
     --bg-glow 0.6s var(--ease),
     --bg-glow-2 0.6s var(--ease),
+    --bg-sheen 0.6s var(--ease),
     --orb-2 0.6s var(--ease),
     --orb-3 0.6s var(--ease),
     --orb-4 0.6s var(--ease);
@@ -308,7 +315,7 @@ select:focus-visible {
   z-index: -1;
   overflow: hidden;
   background:
-    radial-gradient(1100px 720px at 6% -14%, #ffffff 0%, rgba(255, 255, 255, 0) 58%),
+    radial-gradient(1100px 720px at 6% -14%, var(--bg-sheen) 0%, transparent 58%),
     radial-gradient(950px 640px at 98% -6%, var(--bg-glow) 0%, transparent 62%),
     radial-gradient(1200px 800px at 50% 118%, var(--bg-glow-2) 0%, transparent 64%),
     linear-gradient(178deg, var(--bg-a) 0%, var(--bg-b) 38%, var(--bg-c) 72%, var(--bg-d) 100%);
@@ -3550,53 +3557,61 @@ button.user-chip:hover .user-meta strong {
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --ink: #eaf5ff;
-  --ink-2: #d3e8f8;
-  --muted: #a9c4da;
-  --muted-2: #93b2ca;
-  --muted-3: #7e9db5;
+  --ink: #f1f4f7;
+  --ink-2: #d6dbe1;
+  --muted: #9aa3ad;
+  --muted-2: #868f99;
+  --muted-3: #6b737c;
 
-  --glass: rgba(14, 32, 49, 0.62);
-  --glass-strong: rgba(17, 38, 57, 0.86);
-  --glass-soft: rgba(14, 32, 49, 0.42);
-  --frost: rgba(31, 61, 86, 0.55);
-  --line: rgba(129, 181, 219, 0.16);
-  --line-strong: rgba(129, 181, 219, 0.3);
-  --rim: rgba(255, 255, 255, 0.1);
+  /* Neutral, near-black glass — no navy tint, true dark surfaces */
+  --glass: rgba(16, 16, 18, 0.66);
+  --glass-strong: rgba(10, 10, 11, 0.92);
+  --glass-soft: rgba(14, 14, 15, 0.46);
+  --frost: rgba(24, 24, 26, 0.6);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --rim: rgba(255, 255, 255, 0.07);
 
   --accent: #6cbde9;
   --accent-2: #8fd8f8;
   --accent-strong: #6cc0ee;
-  --accent-soft: rgba(108, 189, 233, 0.18);
-  --danger: #ef7f95;
+  --accent-soft: rgba(108, 189, 233, 0.16);
+  --danger: #f4879a;
   --danger-soft: rgba(239, 127, 149, 0.14);
-  --success: #4fc9a4;
+  --success: #45cda1;
   --warning: #e6b45a;
 
+  --bg-sheen: rgba(255, 255, 255, 0.03);
+
   --shadow-lg:
-    0 42px 84px -44px rgba(0, 0, 0, 0.9), 0 12px 26px -18px rgba(0, 0, 0, 0.6),
-    0 1px 2px rgba(0, 0, 0, 0.45);
+    0 42px 84px -44px rgba(0, 0, 0, 0.95), 0 12px 26px -18px rgba(0, 0, 0, 0.8),
+    0 1px 2px rgba(0, 0, 0, 0.6);
   --shadow-md:
-    0 20px 40px -26px rgba(0, 0, 0, 0.82), 0 6px 14px -10px rgba(0, 0, 0, 0.55),
-    0 1px 2px rgba(0, 0, 0, 0.45);
+    0 20px 40px -26px rgba(0, 0, 0, 0.92), 0 6px 14px -10px rgba(0, 0, 0, 0.7),
+    0 1px 2px rgba(0, 0, 0, 0.6);
   --shadow-sm:
-    0 10px 20px -14px rgba(0, 0, 0, 0.75), 0 2px 5px -3px rgba(0, 0, 0, 0.5);
-  --bevel: inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 -1px 0 rgba(0, 0, 0, 0.42);
-  --recess: inset 0 2px 5px rgba(0, 0, 0, 0.48), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    0 10px 20px -14px rgba(0, 0, 0, 0.9), 0 2px 5px -3px rgba(0, 0, 0, 0.6);
+  --bevel: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  --recess: inset 0 2px 5px rgba(0, 0, 0, 0.65), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
 
 [data-theme="dark"] body {
-  background: #06111c;
+  background: #000000;
 }
 [data-theme="dark"] .bg::before {
-  background: radial-gradient(60% 100% at 50% 0%, rgba(116, 190, 235, 0.15), transparent 70%);
+  background: radial-gradient(60% 100% at 50% 0%, rgba(255, 255, 255, 0.04), transparent 70%);
 }
 [data-theme="dark"] .bg::after {
-  opacity: 0.09;
+  opacity: 0.05;
 }
 [data-theme="dark"] .orb-1 {
-  background: rgba(95, 170, 215, 0.3);
-  opacity: 0.45;
+  background: rgba(255, 255, 255, 0.06);
+  opacity: 0.5;
+}
+[data-theme="dark"] .orb-2,
+[data-theme="dark"] .orb-3,
+[data-theme="dark"] .orb-4 {
+  opacity: 0.22;
 }
 [data-theme="dark"] ::selection {
   background: rgba(108, 189, 233, 0.32);

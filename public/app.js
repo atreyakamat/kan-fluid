@@ -455,6 +455,253 @@ function applyAccent(hex) {
   }
 }
 
+/* ── Apple-inspired Liquid Glass Optical Refraction Controller ─────────────── */
+
+const LIQUID_GLASS_KEY = 'kan.liquid_glass';
+
+class LiquidGlassController {
+  constructor() {
+    this.defaults = {
+      scale: 22,
+      chroma: 4,
+      frequency: 0.015,
+      specularConstant: 1.4,
+      specularExponent: 38,
+      azimuth: 135,
+      elevation: 58,
+    };
+    this.params = { ...this.defaults };
+    this.load();
+  }
+
+  load() {
+    try {
+      const stored = localStorage.getItem(LIQUID_GLASS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        this.params = { ...this.defaults, ...parsed };
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  save() {
+    try {
+      localStorage.setItem(LIQUID_GLASS_KEY, JSON.stringify(this.params));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  setRefractionScale(scale, chroma = this.params.chroma) {
+    this.params.scale = Math.max(0, Math.min(100, Number(scale)));
+    this.params.chroma = Math.max(0, Math.min(20, Number(chroma)));
+    const rScale = this.params.scale + this.params.chroma;
+    const gScale = this.params.scale;
+    const bScale = Math.max(0, this.params.scale - this.params.chroma);
+
+    const dispR = document.getElementById('lg-disp-r');
+    const dispG = document.getElementById('lg-disp-g');
+    const dispB = document.getElementById('lg-disp-b');
+    if (dispR) dispR.setAttribute('scale', String(rScale));
+    if (dispG) dispG.setAttribute('scale', String(gScale));
+    if (dispB) dispB.setAttribute('scale', String(bScale));
+
+    document.documentElement.style.setProperty('--liquid-scale', String(this.params.scale));
+    document.documentElement.style.setProperty('--liquid-chroma', String(this.params.chroma));
+    this.save();
+  }
+
+  setFrequency(freq) {
+    this.params.frequency = Math.max(0.001, Math.min(0.1, Number(freq)));
+    const turb = document.getElementById('lg-turb');
+    if (turb) {
+      turb.setAttribute('baseFrequency', String(this.params.frequency));
+    }
+    document.documentElement.style.setProperty('--liquid-frequency', String(this.params.frequency));
+    this.save();
+  }
+
+  setSpecular(constant = this.params.specularConstant, exponent = this.params.specularExponent) {
+    this.params.specularConstant = Math.max(0.1, Math.min(5, Number(constant)));
+    this.params.specularExponent = Math.max(1, Math.min(120, Number(exponent)));
+    const spec = document.getElementById('lg-specular');
+    if (spec) {
+      spec.setAttribute('specularConstant', String(this.params.specularConstant));
+      spec.setAttribute('specularExponent', String(this.params.specularExponent));
+    }
+    document.documentElement.style.setProperty('--liquid-specular', String(this.params.specularConstant));
+    document.documentElement.style.setProperty('--liquid-gloss', String(this.params.specularExponent));
+    this.save();
+  }
+
+  setLightAngle(azimuth = this.params.azimuth, elevation = this.params.elevation) {
+    this.params.azimuth = ((Number(azimuth) % 360) + 360) % 360;
+    this.params.elevation = Math.max(10, Math.min(90, Number(elevation)));
+    const light = document.getElementById('lg-light');
+    if (light) {
+      light.setAttribute('azimuth', String(this.params.azimuth));
+      light.setAttribute('elevation', String(this.params.elevation));
+    }
+    this.save();
+  }
+
+  apply() {
+    this.setRefractionScale(this.params.scale, this.params.chroma);
+    this.setFrequency(this.params.frequency);
+    this.setSpecular(this.params.specularConstant, this.params.specularExponent);
+    this.setLightAngle(this.params.azimuth, this.params.elevation);
+  }
+
+  reset() {
+    this.params = { ...this.defaults };
+    this.apply();
+  }
+}
+
+const LiquidGlass = new LiquidGlassController();
+window.LiquidGlass = LiquidGlass;
+
+function openLiquidGlassTuneModal() {
+  const p = LiquidGlass.params;
+  const modal = openModal(
+    `
+    <div class="modal-head">
+      <div>
+        <h3>Liquid Glass Optics</h3>
+        <p class="modal-sub">Real-time SVG displacement caustics, chromatic dispersion and specular rim.</p>
+      </div>
+      <button class="icon-btn" data-act="close" aria-label="Close">${icon('x')}</button>
+    </div>
+    <div class="modal-body">
+      <div class="optics-hud">
+        <div class="optics-grid">
+          <div class="optics-field">
+            <div class="optics-label-row">
+              <span>Refraction Scale</span>
+              <span class="optics-val" id="val-scale">${p.scale}</span>
+            </div>
+            <input class="optics-slider" id="slider-scale" type="range" min="0" max="60" step="1" value="${p.scale}">
+            <span class="optics-hint">Distortion strength warping elements behind glass.</span>
+          </div>
+
+          <div class="optics-field">
+            <div class="optics-label-row">
+              <span>Fluid Frequency</span>
+              <span class="optics-val" id="val-freq">${p.frequency}</span>
+            </div>
+            <input class="optics-slider" id="slider-freq" type="range" min="0.005" max="0.04" step="0.001" value="${p.frequency}">
+            <span class="optics-hint">Fluidity of the turbulent liquid waves.</span>
+          </div>
+
+          <div class="optics-field">
+            <div class="optics-label-row">
+              <span>Chromatic Dispersion</span>
+              <span class="optics-val" id="val-chroma">${p.chroma}px</span>
+            </div>
+            <input class="optics-slider" id="slider-chroma" type="range" min="0" max="10" step="1" value="${p.chroma}">
+            <span class="optics-hint">RGB wavelength split along sharp glass edges.</span>
+          </div>
+
+          <div class="optics-field">
+            <div class="optics-label-row">
+              <span>Specular Gloss</span>
+              <span class="optics-val" id="val-gloss">${p.specularExponent}</span>
+            </div>
+            <input class="optics-slider" id="slider-gloss" type="range" min="10" max="80" step="2" value="${p.specularExponent}">
+            <span class="optics-hint">Tightness and sharpness of the rim reflection.</span>
+          </div>
+
+          <div class="optics-field">
+            <div class="optics-label-row">
+              <span>Rim Highlight Power</span>
+              <span class="optics-val" id="val-power">${p.specularConstant}</span>
+            </div>
+            <input class="optics-slider" id="slider-power" type="range" min="0.4" max="2.5" step="0.1" value="${p.specularConstant}">
+            <span class="optics-hint">Intensity of the physical edge bevel specular reflection.</span>
+          </div>
+
+          <div class="optics-field">
+            <div class="optics-label-row">
+              <span>Light Angle</span>
+              <span class="optics-val" id="val-angle">${p.azimuth}&deg;</span>
+            </div>
+            <input class="optics-slider" id="slider-angle" type="range" min="0" max="360" step="5" value="${p.azimuth}">
+            <span class="optics-hint">Azimuth angle of the virtual light source.</span>
+          </div>
+        </div>
+        <div class="optics-actions">
+          <button class="btn ghost sm" id="btn-optics-reset" type="button">Reset to defaults</button>
+        </div>
+      </div>
+    </div>
+    `,
+    { className: 'md optics-modal' },
+  );
+
+  const sliderScale = $('#slider-scale', modal);
+  const sliderFreq = $('#slider-freq', modal);
+  const sliderChroma = $('#slider-chroma', modal);
+  const sliderGloss = $('#slider-gloss', modal);
+  const sliderPower = $('#slider-power', modal);
+  const sliderAngle = $('#slider-angle', modal);
+
+  sliderScale.addEventListener('input', () => {
+    const val = Number(sliderScale.value);
+    $('#val-scale', modal).textContent = String(val);
+    LiquidGlass.setRefractionScale(val, Number(sliderChroma.value));
+  });
+
+  sliderFreq.addEventListener('input', () => {
+    const val = Number(sliderFreq.value);
+    $('#val-freq', modal).textContent = String(val);
+    LiquidGlass.setFrequency(val);
+  });
+
+  sliderChroma.addEventListener('input', () => {
+    const val = Number(sliderChroma.value);
+    $('#val-chroma', modal).textContent = `${val}px`;
+    LiquidGlass.setRefractionScale(Number(sliderScale.value), val);
+  });
+
+  sliderGloss.addEventListener('input', () => {
+    const val = Number(sliderGloss.value);
+    $('#val-gloss', modal).textContent = String(val);
+    LiquidGlass.setSpecular(Number(sliderPower.value), val);
+  });
+
+  sliderPower.addEventListener('input', () => {
+    const val = Number(sliderPower.value);
+    $('#val-power', modal).textContent = String(val);
+    LiquidGlass.setSpecular(val, Number(sliderGloss.value));
+  });
+
+  sliderAngle.addEventListener('input', () => {
+    const val = Number(sliderAngle.value);
+    $('#val-angle', modal).innerHTML = `${val}&deg;`;
+    LiquidGlass.setLightAngle(val);
+  });
+
+  $('#btn-optics-reset', modal).addEventListener('click', () => {
+    LiquidGlass.reset();
+    const cur = LiquidGlass.params;
+    sliderScale.value = cur.scale;
+    $('#val-scale', modal).textContent = String(cur.scale);
+    sliderFreq.value = cur.frequency;
+    $('#val-freq', modal).textContent = String(cur.frequency);
+    sliderChroma.value = cur.chroma;
+    $('#val-chroma', modal).textContent = `${cur.chroma}px`;
+    sliderGloss.value = cur.specularExponent;
+    $('#val-gloss', modal).textContent = String(cur.specularExponent);
+    sliderPower.value = cur.specularConstant;
+    $('#val-power', modal).textContent = String(cur.specularConstant);
+    sliderAngle.value = cur.azimuth;
+    $('#val-angle', modal).innerHTML = `${cur.azimuth}&deg;`;
+    showToast('Liquid glass optics reset to defaults');
+  });
+}
+
 function updateThemeIcon() {
   if (!ui.themeIcon) return;
   const mode = currentTheme();
@@ -465,6 +712,9 @@ function updateThemeIcon() {
     const label = `${meta.label} mode — switch to ${THEME_META[nextMode].label}`;
     ui.btnTheme.title = label;
     ui.btnTheme.setAttribute('aria-label', label);
+  }
+  if (ui.btnGlassTune) {
+    ui.btnGlassTune.classList.toggle('hidden', mode !== 'glass');
   }
   $$('[data-theme-choice]').forEach((btn) => {
     const on = btn.dataset.themeChoice === mode;
@@ -2157,7 +2407,10 @@ function openAccountModal() {
         </div>
       </div>
       <div class="account-section">
-        <span class="field-label">Appearance</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="field-label" style="margin-bottom:0;">Appearance</span>
+          ${currentMode === 'glass' ? `<button class="text-btn" id="btn-account-optics" type="button" style="font-size:11.5px;">Tune optics &rarr;</button>` : ''}
+        </div>
         <div class="theme-choice">
           ${THEME_MODES.map(
             (mode) => `
@@ -2183,6 +2436,11 @@ function openAccountModal() {
   );
 
   modal.addEventListener('click', async (event) => {
+    if (event.target.closest('#btn-account-optics')) {
+      closeModal(true);
+      openLiquidGlassTuneModal();
+      return;
+    }
     const themeChoice = event.target.closest('[data-theme-choice]');
     if (themeChoice) {
       applyTheme(themeChoice.dataset.themeChoice);
@@ -3590,6 +3848,7 @@ function wireEvents() {
     openCardModal(null, state.columns[0]?.id ?? null);
   });
   ui.btnTheme?.addEventListener('click', toggleTheme);
+  ui.btnGlassTune?.addEventListener('click', openLiquidGlassTuneModal);
   ui.btnHelp?.addEventListener('click', () => {
     if (state.tour.active) endTour(false);
     else startTour();
@@ -3869,6 +4128,24 @@ function wireEvents() {
     renderFilterbar();
   });
 
+  // Dynamic pointer reflection tracking for liquid glass physical depth
+  let pointermoveRaf = null;
+  window.addEventListener('pointermove', (e) => {
+    if (currentTheme() !== 'glass') return;
+    if (pointermoveRaf) return;
+    pointermoveRaf = requestAnimationFrame(() => {
+      pointermoveRaf = null;
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      const angle = (Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI + 360) % 360;
+      const offset = (angle - 180) * 0.12;
+      const light = document.getElementById('lg-light');
+      if (light) {
+        light.setAttribute('azimuth', String(Math.round(((LiquidGlass.params.azimuth + offset) % 360 + 360) % 360)));
+      }
+    });
+  }, { passive: true });
+
   // Keep the desktop collapse and mobile drawer from fighting each other
   window.addEventListener('resize', () => {
     if (window.innerWidth > 980) closeSidebar();
@@ -3888,7 +4165,7 @@ function init() {
     'app', 'sidebar', 'scrim', 'board-list', 'side-labels', 'side-team-block', 'user-chip', 'btn-logout',
     'btn-new-board', 'btn-manage-labels', 'btn-menu', 'btn-sidebar-close', 'btn-collapse', 'btn-reveal', 'btn-team-side',
     'board-head', 'topbar-actions', 'btn-board-settings', 'btn-new-card',
-    'btn-theme', 'theme-icon', 'btn-help', 'btn-team', 'presence',
+    'btn-theme', 'theme-icon', 'btn-glass-tune', 'btn-help', 'btn-team', 'presence',
     'filterbar', 'filter-q', 'btn-label-filter', 'label-filter-count', 'label-popover',
     'filter-assignee', 'filter-priority', 'btn-archived', 'archived-count',
     'btn-clear-filters', 'view-hint', 'view-toggle', 'board', 'calendar',
@@ -3899,6 +4176,7 @@ function init() {
     ui[key] = document.getElementById(id);
   }
 
+  LiquidGlass.apply();
   updateThemeIcon();
   applySidebarCollapse();
   wireEvents();

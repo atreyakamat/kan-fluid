@@ -4357,6 +4357,7 @@ button.user-chip:hover .user-meta strong {
 [data-theme="glass"] .login-card,
 [data-theme="glass"] .tour-tip {
   position: relative;
+  isolation: isolate;
   border: 1px solid transparent;
   background:
     linear-gradient(178deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3) 55%, rgba(255, 255, 255, 0.38)) padding-box,
@@ -4381,6 +4382,30 @@ button.user-chip:hover .user-meta strong {
   animation: spectrum-spin 22s linear infinite;
 }
 
+/* Liquid optical refraction plate on columns, modals and login card */
+[data-theme="glass"] .column::before,
+[data-theme="glass"] .modal::before,
+[data-theme="glass"] .login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(140% 90% at 25% 0%, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.04) 75%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02));
+  filter: url(#liquid-glass-refraction);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.95;
+}
+
+[data-theme="glass"] .column > *,
+[data-theme="glass"] .modal > *,
+[data-theme="glass"] .login-card > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* Close-up refraction: a soft spectrum halo bleeding out from panes */
 [data-theme="glass"] .column::after {
   content: "";
@@ -4403,6 +4428,8 @@ button.user-chip:hover .user-meta strong {
 }
 
 [data-theme="glass"] .card {
+  position: relative;
+  isolation: isolate;
   border: 1px solid transparent;
   background:
     linear-gradient(178deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0.48)) padding-box,
@@ -4423,6 +4450,26 @@ button.user-chip:hover .user-meta strong {
     inset 0 1px 0 rgba(255, 255, 255, 0.92),
     inset 0 -2px 0 rgba(255, 255, 255, 0.55);
   animation: spectrum-spin 22s linear infinite;
+}
+
+/* Liquid optical refraction plate on individual cards */
+[data-theme="glass"] .card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 80% at 20% 10%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.04) 70%),
+    linear-gradient(170deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.02));
+  filter: url(#liquid-glass-refraction);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.95;
+}
+
+[data-theme="glass"] .card > * {
+  position: relative;
+  z-index: 1;
 }
 [data-theme="glass"] .card:hover {
   transform: translateY(-2px);
@@ -4934,6 +4981,140 @@ button.user-chip:hover .user-meta strong {
   background: rgba(140, 175, 210, 0.3);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   Apple-inspired Liquid Glass Refraction Component & Optics HUD
+   Physical depth, SVG displacement caustics, chromatic dispersion and specular rim
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --liquid-scale: 22;
+  --liquid-chroma: 4;
+  --liquid-frequency: 0.015;
+  --liquid-specular: 1.4;
+  --liquid-gloss: 38;
+}
+
+/* Core Layout Container with a vibrant background to showcase refraction */
+.liquid-glass-container {
+  width: 100%;
+  min-height: 380px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #ff007b, #6a00ff, #00f0ff);
+  background-size: 200% 200%;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+/* The Liquid Glass UI Component */
+.liquid-glass-card {
+  position: relative;
+  width: 340px;
+  max-width: 100%;
+  padding: 2.2rem;
+  border-radius: 32px; /* Smooth Apple-style squircle */
+  color: #ffffff;
+  font-family: var(--font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  isolation: isolate;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 24px 60px -20px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+}
+
+/* Optical refraction plate (SVG displacement + chromatic dispersion + specular rim) */
+.liquid-glass-card::before,
+.liquid-glass-plate {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 80% at 20% 10%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.05) 70%),
+    linear-gradient(170deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.04));
+  filter: url(#liquid-glass-refraction);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.95;
+}
+
+.liquid-glass-card > *,
+.liquid-glass-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Fallback for direct whole-card SVG filtering */
+.liquid-glass-card.direct-filter {
+  filter: url(#liquid-glass-refraction);
+}
+
+/* Optics HUD: Real-time interactive parameter controls */
+.optics-hud {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 0 2px;
+}
+.optics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 580px) {
+  .optics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.optics-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--glass-soft);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+.optics-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--ink);
+}
+.optics-val {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--line);
+  color: var(--accent-strong);
+}
+.optics-slider {
+  width: 100%;
+  height: 6px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  border-radius: 3px;
+}
+.optics-hint {
+  font-size: 10px;
+  color: var(--muted-2);
+}
+.optics-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
 }
 /* ─── New-feature responsive rules ────────────────────────────────────────── */
 @media (max-width: 1180px) {

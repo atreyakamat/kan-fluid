@@ -35,23 +35,23 @@
       <defs>
         <!-- Primary Liquid Glass Refraction Filter with Chromatic Dispersion & Physical Depth -->
         <filter id="liquid-glass-refraction" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-          <!-- 1. Real-time organic fluid noise turbulence map -->
+          <!-- 1. Silky, broad liquid caustics displacement map (zero noise / zero grit) -->
           <feTurbulence
             id="lg-turb"
             type="fractalNoise"
-            baseFrequency="0.015"
-            numOctaves="2"
-            seed="8"
-            result="noise"
+            baseFrequency="0.0035 0.0045"
+            numOctaves="1"
+            seed="5"
+            result="caustics"
           />
 
-          <!-- 2. Optical Refraction + Chromatic Dispersion (RGB Wavelength Shift) -->
-          <!-- Red Channel: higher refraction index / larger displacement -->
+          <!-- 2. Optical Refraction + Subtle Chromatic Dispersion (RGB Wavelength Shift) -->
+          <!-- Red Channel: slightly larger refraction index -->
           <feDisplacementMap
             id="lg-disp-r"
             in="SourceGraphic"
-            in2="noise"
-            scale="26"
+            in2="caustics"
+            scale="8"
             xChannelSelector="R"
             yChannelSelector="G"
             result="disp-r"
@@ -70,8 +70,8 @@
           <feDisplacementMap
             id="lg-disp-g"
             in="SourceGraphic"
-            in2="noise"
-            scale="22"
+            in2="caustics"
+            scale="6"
             xChannelSelector="R"
             yChannelSelector="G"
             result="disp-g"
@@ -86,12 +86,12 @@
             result="green"
           />
 
-          <!-- Blue Channel: lower refraction index / tighter displacement -->
+          <!-- Blue Channel: tighter displacement -->
           <feDisplacementMap
             id="lg-disp-b"
             in="SourceGraphic"
-            in2="noise"
-            scale="18"
+            in2="caustics"
+            scale="4"
             xChannelSelector="R"
             yChannelSelector="G"
             result="disp-b"
@@ -106,22 +106,22 @@
             result="blue"
           />
 
-          <!-- Recombine refracted color channels with chromatic edge fringes -->
+          <!-- Recombine refracted color channels with pristine chromatic edge fringes -->
           <feBlend in="red" in2="green" mode="screen" result="rg" />
           <feBlend in="rg" in2="blue" mode="screen" result="chromatic-refraction" />
 
           <!-- 3. Physical Depth & Specular Liquid Surface Rim -->
-          <feGaussianBlur in="SourceAlpha" stdDeviation="4.2" result="edge-blur" />
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="edge-blur" />
           <feSpecularLighting
             id="lg-specular"
             in="edge-blur"
-            surfaceScale="5"
-            specularConstant="1.4"
-            specularExponent="38"
+            surfaceScale="3.2"
+            specularConstant="0.9"
+            specularExponent="48"
             lighting-color="#ffffff"
             result="specular-light"
           >
-            <feDistantLight id="lg-light" azimuth="135" elevation="58" />
+            <feDistantLight id="lg-light" azimuth="135" elevation="62" />
           </feSpecularLighting>
           <!-- Mask specular reflection strictly to the squircle perimeter silhouette -->
           <feComposite in="specular-light" in2="SourceAlpha" operator="in" result="specular-rim" />
@@ -130,20 +130,20 @@
           <feBlend in="specular-rim" in2="chromatic-refraction" mode="screen" result="final-liquid-glass" />
         </filter>
 
-        <!-- Direct filter id="liquid-refraction" alias for compatibility -->
+        <!-- Direct filter id="liquid-refraction" alias with matching optical physics -->
         <filter id="liquid-refraction" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="8" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="26" xChannelSelector="R" yChannelSelector="G" result="disp-r" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.0045" numOctaves="1" seed="5" result="caustics" />
+          <feDisplacementMap in="SourceGraphic" in2="caustics" scale="8" xChannelSelector="R" yChannelSelector="G" result="disp-r" />
           <feColorMatrix in="disp-r" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G" result="disp-g" />
+          <feDisplacementMap in="SourceGraphic" in2="caustics" scale="6" xChannelSelector="R" yChannelSelector="G" result="disp-g" />
           <feColorMatrix in="disp-g" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G" result="disp-b" />
+          <feDisplacementMap in="SourceGraphic" in2="caustics" scale="4" xChannelSelector="R" yChannelSelector="G" result="disp-b" />
           <feColorMatrix in="disp-b" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue" />
           <feBlend in="red" in2="green" mode="screen" result="rg" />
           <feBlend in="rg" in2="blue" mode="screen" result="displaced" />
-          <feGaussianBlur in="SourceAlpha" stdDeviation="4.2" result="blur" />
-          <feSpecularLighting in="blur" surfaceScale="5" specularConstant="1.4" specularExponent="38" lighting-color="#ffffff" result="specular">
-            <feDistantLight azimuth="135" elevation="58" />
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="blur" />
+          <feSpecularLighting in="blur" surfaceScale="3.2" specularConstant="0.9" specularExponent="48" lighting-color="#ffffff" result="specular">
+            <feDistantLight azimuth="135" elevation="62" />
           </feSpecularLighting>
           <feComposite in="specular" in2="SourceAlpha" operator="in" result="specular-clip" />
           <feBlend mode="screen" in="specular-clip" in2="displaced" />

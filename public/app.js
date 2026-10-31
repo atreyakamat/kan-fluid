@@ -400,15 +400,15 @@ function accentPalette(hex, mode) {
     orb3 = hsl(h, sat, 14);
     orb4 = hsl(h, sat, 17);
   } else if (glass) {
-    bgA = hsl(h, Math.min(sat * 0.9, 78), 92);
-    bgB = hsl(h, Math.min(sat * 1.05, 85), 82);
-    bgC = hsl(h, Math.min(sat * 1.1, 90), 72);
-    bgD = hsl(h, Math.min(sat * 1.1, 92), 62);
-    bgGlow = hsla(h, sat, 82, 0.95);
-    bgGlow2 = hsla(h, sat, 68, 0.9);
-    orb2 = hsl(h, sat, 82);
-    orb3 = hsl(h, sat, 92);
-    orb4 = hsl(h, sat, 72);
+    bgA = hsl(h, 45, 96);
+    bgB = hsl((h + 25) % 360, 50, 92);
+    bgC = hsl((h + 55) % 360, 55, 87);
+    bgD = hsl((h + 110) % 360, 58, 82);
+    bgGlow = hsla((h + 35) % 360, 85, 74, 0.75);
+    bgGlow2 = hsla((h + 195) % 360, 88, 70, 0.65);
+    orb2 = hsl((h + 35) % 360, Math.max(sat, 80), 66);
+    orb3 = hsl((h + 155) % 360, Math.max(sat, 82), 64);
+    orb4 = hsl((h + 275) % 360, Math.max(sat, 78), 68);
   } else {
     bgA = hsl(h, Math.min(sat * 0.4, 55), 97);
     bgB = hsl(h, Math.min(sat * 0.55, 60), 94);
@@ -462,13 +462,13 @@ const LIQUID_GLASS_KEY = 'kan.liquid_glass';
 class LiquidGlassController {
   constructor() {
     this.defaults = {
-      scale: 22,
-      chroma: 4,
-      frequency: 0.015,
-      specularConstant: 1.4,
-      specularExponent: 38,
+      scale: 7,
+      chroma: 2,
+      frequency: 0.004,
+      specularConstant: 0.9,
+      specularExponent: 48,
       azimuth: 135,
-      elevation: 58,
+      elevation: 62,
     };
     this.params = { ...this.defaults };
     this.load();
@@ -582,7 +582,7 @@ function openLiquidGlassTuneModal() {
               <span>Refraction Scale</span>
               <span class="optics-val" id="val-scale">${p.scale}</span>
             </div>
-            <input class="optics-slider" id="slider-scale" type="range" min="0" max="60" step="1" value="${p.scale}">
+            <input class="optics-slider" id="slider-scale" type="range" min="0" max="30" step="1" value="${p.scale}">
             <span class="optics-hint">Distortion strength warping elements behind glass.</span>
           </div>
 
@@ -591,7 +591,7 @@ function openLiquidGlassTuneModal() {
               <span>Fluid Frequency</span>
               <span class="optics-val" id="val-freq">${p.frequency}</span>
             </div>
-            <input class="optics-slider" id="slider-freq" type="range" min="0.005" max="0.04" step="0.001" value="${p.frequency}">
+            <input class="optics-slider" id="slider-freq" type="range" min="0.001" max="0.015" step="0.0005" value="${p.frequency}">
             <span class="optics-hint">Fluidity of the turbulent liquid waves.</span>
           </div>
 
@@ -600,7 +600,7 @@ function openLiquidGlassTuneModal() {
               <span>Chromatic Dispersion</span>
               <span class="optics-val" id="val-chroma">${p.chroma}px</span>
             </div>
-            <input class="optics-slider" id="slider-chroma" type="range" min="0" max="10" step="1" value="${p.chroma}">
+            <input class="optics-slider" id="slider-chroma" type="range" min="0" max="8" step="0.5" value="${p.chroma}">
             <span class="optics-hint">RGB wavelength split along sharp glass edges.</span>
           </div>
 
@@ -609,7 +609,7 @@ function openLiquidGlassTuneModal() {
               <span>Specular Gloss</span>
               <span class="optics-val" id="val-gloss">${p.specularExponent}</span>
             </div>
-            <input class="optics-slider" id="slider-gloss" type="range" min="10" max="80" step="2" value="${p.specularExponent}">
+            <input class="optics-slider" id="slider-gloss" type="range" min="15" max="90" step="2" value="${p.specularExponent}">
             <span class="optics-hint">Tightness and sharpness of the rim reflection.</span>
           </div>
 
@@ -618,7 +618,7 @@ function openLiquidGlassTuneModal() {
               <span>Rim Highlight Power</span>
               <span class="optics-val" id="val-power">${p.specularConstant}</span>
             </div>
-            <input class="optics-slider" id="slider-power" type="range" min="0.4" max="2.5" step="0.1" value="${p.specularConstant}">
+            <input class="optics-slider" id="slider-power" type="range" min="0.2" max="2.0" step="0.05" value="${p.specularConstant}">
             <span class="optics-hint">Intensity of the physical edge bevel specular reflection.</span>
           </div>
 

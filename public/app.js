@@ -3567,6 +3567,7 @@ function wireEvents() {
   ui.btnMenu.addEventListener('click', openSidebar);
   ui.btnSidebarClose.addEventListener('click', closeSidebar);
   ui.btnCollapse.addEventListener('click', toggleSidebarCollapsed);
+  ui.btnReveal.addEventListener('click', toggleSidebarCollapsed);
   ui.scrim.addEventListener('click', closeSidebar);
   ui.btnNewBoard.addEventListener('click', openNewBoardModal);
   ui.btnManageLabels.addEventListener('click', () => openLabelManager());
@@ -3840,6 +3841,12 @@ function wireEvents() {
       return;
     }
 
+    if (event.key === ']' && window.innerWidth > 980) {
+      event.preventDefault();
+      if (ui.app.classList.contains('sidebar-collapsed')) toggleSidebarCollapsed();
+      return;
+    }
+
     if (handleBoardPanKeys(event)) return;
 
     if (event.key === '/') {
@@ -3879,7 +3886,7 @@ function init() {
   const ids = [
     'login', 'login-form', 'login-username', 'login-password', 'login-error', 'login-submit',
     'app', 'sidebar', 'scrim', 'board-list', 'side-labels', 'side-team-block', 'user-chip', 'btn-logout',
-    'btn-new-board', 'btn-manage-labels', 'btn-menu', 'btn-sidebar-close', 'btn-collapse', 'btn-team-side',
+    'btn-new-board', 'btn-manage-labels', 'btn-menu', 'btn-sidebar-close', 'btn-collapse', 'btn-reveal', 'btn-team-side',
     'board-head', 'topbar-actions', 'btn-board-settings', 'btn-new-card',
     'btn-theme', 'theme-icon', 'btn-help', 'btn-team', 'presence',
     'filterbar', 'filter-q', 'btn-label-filter', 'label-filter-count', 'label-popover',

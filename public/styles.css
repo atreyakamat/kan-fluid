@@ -805,7 +805,7 @@ input[type="color"]::-moz-color-swatch {
 .avatar.sm {
   width: 24px;
   height: 24px;
-  font-size: 9.5px;
+  font-size: 10.5px;
 }
 
 /* ─── Login ────────────────────────────────────────────────────────────────── */
@@ -1174,7 +1174,7 @@ input[type="color"]::-moz-color-swatch {
   align-items: center;
   gap: 7px;
   color: var(--muted-2);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.17em;
   text-transform: uppercase;
@@ -1243,7 +1243,7 @@ input[type="color"]::-moz-color-swatch {
 }
 .progress-label {
   color: var(--muted);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -1429,7 +1429,7 @@ input[type="color"]::-moz-color-swatch {
   justify-content: space-between;
   padding: 3px 4px 7px;
   color: var(--muted-2);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1598,7 +1598,7 @@ input[type="color"]::-moz-color-swatch {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.5);
   color: var(--muted-2);
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -1779,7 +1779,7 @@ input[type="color"]::-moz-color-swatch {
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.6);
   color: var(--muted-2);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 650;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -1798,7 +1798,7 @@ input[type="color"]::-moz-color-swatch {
   align-items: center;
   gap: 4px;
   color: color-mix(in srgb, var(--p, #e3a62f) 52%, #0d2b41);
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -1815,7 +1815,7 @@ input[type="color"]::-moz-color-swatch {
   align-items: center;
   gap: 4px;
   color: var(--muted-3);
-  font-size: 9.5px;
+  font-size: 10.5px;
 }
 .assignee-ghost svg {
   width: 12px;
@@ -1915,7 +1915,7 @@ input[type="color"]::-moz-color-swatch {
 .quick-add-row .hint {
   flex: 1;
   color: var(--muted-2);
-  font-size: 9.5px;
+  font-size: 10.5px;
 }
 
 .add-column {
@@ -2660,7 +2660,7 @@ input[type="color"]::-moz-color-swatch {
   border-radius: 999px;
   background: linear-gradient(180deg, #cfeafc, #8fc9ec);
   color: #134564;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 750;
 }
 
@@ -2756,7 +2756,7 @@ input[type="color"]::-moz-color-swatch {
   gap: 8px;
   padding: 0 2px 7px;
   color: var(--muted-2);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -2856,7 +2856,7 @@ input[type="color"]::-moz-color-swatch {
 .cal-more {
   padding-left: 6px;
   color: var(--muted-3);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 650;
 }
 
@@ -2871,7 +2871,7 @@ input[type="color"]::-moz-color-swatch {
   align-items: center;
   gap: 8px;
   color: var(--muted-2);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -2887,7 +2887,7 @@ input[type="color"]::-moz-color-swatch {
   border-radius: 999px;
   background: linear-gradient(180deg, #cfeafc, #8fc9ec);
   color: #154866;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 750;
 }
 .comment-list {
@@ -2924,7 +2924,7 @@ input[type="color"]::-moz-color-swatch {
 .comment-head time {
   margin-left: auto;
   color: var(--muted-3);
-  font-size: 9.5px;
+  font-size: 10.5px;
   white-space: nowrap;
 }
 .comment-delete {
@@ -3268,7 +3268,7 @@ button.user-chip:hover .user-meta strong {
   justify-content: space-between;
   gap: 10px;
   color: var(--muted-2);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -3401,7 +3401,7 @@ button.user-chip:hover .user-meta strong {
 }
 .theme-option em {
   color: var(--muted-3);
-  font-size: 9px;
+  font-size: 10.5px;
   font-style: normal;
   font-weight: 650;
   letter-spacing: 0.08em;
@@ -3520,7 +3520,7 @@ button.user-chip:hover .user-meta strong {
   padding: 2px 8px;
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 999px;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -5303,6 +5303,22 @@ button.user-chip:hover .user-meta strong {
   }
 }
 
+/* Touch drag ghost: the lifted card that follows the finger. */
+.touch-drag-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 90;
+  margin: 0;
+  pointer-events: none;
+  box-shadow: 0 22px 44px -14px rgba(8, 26, 52, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  will-change: transform;
+}
+.touch-drag-ghost .card-people,
+.touch-drag-ghost .card-labels {
+  opacity: 0.85;
+}
+
 /* ─── Collapsible sidebar ──────────────────────────────────────────────────── */
 .collapse-btn {
   display: none;
@@ -5448,7 +5464,7 @@ button.user-chip:hover .user-meta strong {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #fff;
@@ -5559,7 +5575,7 @@ button.user-chip:hover .user-meta strong {
 .card-people-row em {
   display: block;
   font-style: normal;
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -6052,5 +6068,79 @@ html.theme-anim .card {
   .login {
     padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
       max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   Mobile performance budget
+   Animated spectrum borders and oversized blur radii melt GPUs on phones.
+   On touch-sized viewports we trade them for static equivalents that look
+   nearly identical but cost a fraction of the paint time.
+   ═════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 980px) {
+  /* Freeze the rotating spectrum edges — keep the spectrum look, drop the spin. */
+  [data-theme="glass"] .column,
+  [data-theme="glass"] .modal,
+  [data-theme="glass"] .card,
+  [data-theme="glass"] .login-card,
+  [data-theme="glass"] .popover,
+  [data-theme="glass"] .toast,
+  [data-theme="glass"] .tour-tip {
+    animation: none !important;
+  }
+
+  /* Halve every oversized backdrop blur; frosted depth stays, cost doesn't. */
+  [data-theme="glass"] .column,
+  [data-theme="glass"] .modal,
+  [data-theme="glass"] .column {
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+  }
+  [data-theme="glass"] .topbar,
+  [data-theme="glass"] .filterbar {
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+  }
+  [data-theme="glass"] .card {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  /* Smaller, cheaper ambient orbs. */
+  .bg .orb {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  [data-theme="glass"] .orb-1,
+  [data-theme="glass"] .orb-2,
+  [data-theme="glass"] .orb-3,
+  [data-theme="glass"] .orb-4 {
+    filter: blur(40px);
+    opacity: 0.55;
+  }
+
+  /* Hints the compositor to keep the board scrolling off the main thread. */
+  .board {
+    will-change: scroll-position;
+  }
+}
+
+/* Extremely small screens: tighten paddings so columns stay readable. */
+@media (max-width: 460px) {
+  .column,
+  .add-column {
+    width: 88vw;
+    flex-basis: 88vw;
+  }
+  .board {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .topbar {
+    gap: 10px;
+  }
+  .toasts {
+    left: 12px;
+    right: 12px;
   }
 }

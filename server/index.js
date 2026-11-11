@@ -18,7 +18,24 @@ app.use((req, res, next) => {
 app.use('/api', api);
 
 const publicDir = path.join(config.rootDir, 'public');
-app.use(express.static(publicDir, { index: 'index.html' }));
+app.use(express.static(publicDir, {
+  index: 'index.html',
+  setHeaders(res, filePath) {
+    // Never let a stale service worker or HTML shell stick around; they
+    // revalidate cheaply, while icons are effectively immutable.
+    const base = path.basename(filePath);
+    if (base === 'sw.js' || base === 'index.html') {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else if (filePath.includes(`${path.sep}icons${path.sep}`)) {
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=300');
+    }
+    if (base === 'manifest.webmanifest') {
+      res.setHeader('Content-Type', 'application/manifest+json');
+    }
+  },
+}));
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });

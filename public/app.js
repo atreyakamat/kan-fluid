@@ -1046,9 +1046,8 @@ function cardHtml(card) {
        </span>`;
 
   return `
-    <article class="card prio-${esc(card.priority)}" data-card-id="${card.id}"
-             draggable="${filtersActive() ? 'false' : 'true'}" tabindex="0" role="button"
-             aria-label="${esc(card.title)}">
+    <div class="card prio-${esc(card.priority)}" data-card-id="${card.id}"
+         draggable="${filtersActive() ? 'false' : 'true'}" tabindex="0" role="button">
       ${labelMarkup ? `<div class="card-labels">${labelMarkup}${
         extraLabels > 0 ? `<span class="chip" style="--c:#94a3b8">+${extraLabels}</span>` : ''
       }</div>` : ''}
@@ -1065,7 +1064,7 @@ function cardHtml(card) {
           ${commentMarkup}
         </div>
       </div>
-    </article>`;
+    </div>`;
 }
 
 function columnHtml(column) {
@@ -3694,10 +3693,17 @@ function closeQuickAdd() {
 /* ── Drag & drop ──────────────────────────────────────────────────────────── */
 
 let dragPlaceholder = null;
+let dragRaf = 0;
+let dragHoverBody = null;
+let dragHoverY = 0;
 
 function cleanupDrag() {
   const wasDragging = !!state.drag;
   state.drag = null;
+  if (dragRaf) {
+    cancelAnimationFrame(dragRaf);
+    dragRaf = 0;
+  }
   dragPlaceholder?.remove();
   dragPlaceholder = null;
   $$('.card.dragging', ui.board).forEach((card) => card.classList.remove('dragging'));
@@ -4032,10 +4038,28 @@ function wireEvents() {
 
   ui.board.addEventListener('dragover', (event) => {
     if (!state.drag) return;
-    const body = event.target.closest('.column-body');
+    // Accept the entire column as the drop zone, not just the body —
+    // drops on the column head/foot used to fizzle.
+    const body =
+      event.target.closest('.column-body') ||
+      event.target.closest('.column')?.querySelector('.column-body');
     if (!body) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
+
+    // Coalesce the per-event DOM work into one frame — dragover fires
+    // dozens of times per second and this keeps the board at 60fps.
+    dragHoverBody = body;
+    dragHoverY = event.clientY;
+    if (!dragRaf) {
+      dragRaf = requestAnimationFrame(applyDragHover);
+    }
+  });
+
+  function applyDragHover() {
+    dragRaf = 0;
+    const body = dragHoverBody;
+    if (!body || !state.drag) return;
 
     if (!dragPlaceholder) {
       dragPlaceholder = document.createElement('div');
@@ -4050,7 +4074,7 @@ function wireEvents() {
       column.classList.toggle('drag-target', column.contains(body)),
     );
 
-    const after = afterElement(body, event.clientY);
+    const after = afterElement(body, dragHoverY);
     if (after) {
       if (dragPlaceholder.parentElement !== body || dragPlaceholder.nextElementSibling !== after) {
         body.insertBefore(dragPlaceholder, after);
@@ -4058,11 +4082,13 @@ function wireEvents() {
     } else if (dragPlaceholder.parentElement !== body || dragPlaceholder.nextElementSibling !== null) {
       body.appendChild(dragPlaceholder);
     }
-  });
+  }
 
   ui.board.addEventListener('drop', (event) => {
     if (!state.drag) return;
-    const body = event.target.closest('.column-body');
+    const body =
+      event.target.closest('.column-body') ||
+      event.target.closest('.column')?.querySelector('.column-body');
     if (!body) {
       cleanupDrag();
       return;
@@ -4072,6 +4098,143 @@ function wireEvents() {
   });
 
   ui.board.addEventListener('dragend', cleanupDrag);
+
+  /* ── Touch drag & drop ─────────────────────────────────────────────────────
+     Native HTML5 dnd never fires on touch devices, so cards were unmovable
+     on phones. This pointer-based path gives touch the same behavior:
+     long-press to lift, drag to reorder, release to drop. It reuses
+     applyDragHover + handleDrop, so both paths share one commit pipeline. */
+  {
+    let pressTimer = 0;
+    let pressPointerId = null;
+    let touchActive = false;
+    let startX = 0;
+    let startY = 0;
+    let ghost = null;
+    let ghostX = 0;
+    let ghostY = 0;
+    let ghostOX = 0;
+    let ghostOY = 0;
+
+    const clearPressTimer = () => {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = 0;
+      }
+    };
+
+    const removeGhost = () => {
+      ghost?.remove();
+      ghost = null;
+    };
+
+    const moveGhost = () => {
+      if (ghost) ghost.style.transform = `translate3d(${ghostX - ghostOX}px, ${ghostY - ghostOY}px, 0) rotate(2.5deg) scale(1.04)`;
+    };
+
+    function liftCard(card, event) {
+      const box = card.getBoundingClientRect();
+      ghostOX = event.clientX - box.left;
+      ghostOY = event.clientY - box.top;
+      ghostX = event.clientX;
+      ghostY = event.clientY;
+
+      state.drag = { cardId: Number(card.dataset.cardId) };
+      card.classList.add('dragging');
+      state.suppressClick = true;
+
+      if (!dragPlaceholder) {
+        dragPlaceholder = document.createElement('div');
+        dragPlaceholder.className = 'drop-placeholder';
+        dragPlaceholder.style.height = `${Math.round(box.height)}px`;
+        card.parentElement.insertBefore(dragPlaceholder, card.nextSibling);
+      }
+
+      ghost = card.cloneNode(true);
+      ghost.classList.add('touch-drag-ghost');
+      ghost.style.width = `${Math.round(box.width)}px`;
+      ghost.style.transform = `translate3d(${ghostX - ghostOX}px, ${ghostY - ghostOY}px, 0)`;
+      document.body.appendChild(ghost);
+
+      touchActive = true;
+      navigator.vibrate?.(15);
+    }
+
+    // While a card is lifted, swallow scrolling so the finger steers the card.
+    document.addEventListener(
+      'touchmove',
+      (event) => {
+        if (touchActive) event.preventDefault();
+      },
+      { passive: false },
+    );
+
+    ui.board.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' || touchActive || pressPointerId !== null) return;
+      if (event.target.closest('button, a, input, textarea, select, .chip-x, .icon-btn')) return;
+      const card = event.target.closest('.card');
+      if (!card) return;
+
+      pressPointerId = event.pointerId;
+      startX = event.clientX;
+      startY = event.clientY;
+      clearPressTimer();
+      pressTimer = setTimeout(() => {
+        pressTimer = 0;
+        if (pressPointerId === null || !document.contains(card)) return;
+        liftCard(card, { clientX: startX, clientY: startY });
+      }, 260);
+    });
+
+    window.addEventListener('pointermove', (event) => {
+      if (pressTimer && pressPointerId === event.pointerId) {
+        // Finger wandered before the long-press landed — it's a scroll.
+        if (Math.hypot(event.clientX - startX, event.clientY - startY) > 12) clearPressTimer();
+        return;
+      }
+      if (!touchActive) return;
+      event.preventDefault?.();
+      ghostX = event.clientX;
+      ghostY = event.clientY;
+      moveGhost();
+      const over = document.elementFromPoint(event.clientX, event.clientY);
+      const body =
+        over?.closest?.('.column-body') ||
+        over?.closest?.('.column')?.querySelector('.column-body');
+      if (body) {
+        dragHoverBody = body;
+        dragHoverY = event.clientY;
+        if (!dragRaf) dragRaf = requestAnimationFrame(applyDragHover);
+      }
+    });
+
+    window.addEventListener('pointerup', (event) => {
+      if (pressTimer && pressPointerId === event.pointerId) {
+        clearPressTimer();
+        pressPointerId = null;
+        return;
+      }
+      if (!touchActive) return;
+      pressPointerId = null;
+      touchActive = false;
+      const body =
+        dragHoverBody && document.contains(dragHoverBody)
+          ? dragHoverBody
+          : dragPlaceholder?.parentElement;
+      removeGhost();
+      if (body) handleDrop(body);
+      else cleanupDrag();
+    });
+
+    window.addEventListener('pointercancel', () => {
+      clearPressTimer();
+      pressPointerId = null;
+      if (!touchActive) return;
+      touchActive = false;
+      removeGhost();
+      cleanupDrag();
+    });
+  }
 
   // Keyboard shortcuts
   document.addEventListener('keydown', (event) => {
@@ -4186,6 +4349,10 @@ function init() {
 async function boot() {
   try {
     const { user } = await api('/auth/me');
+    if (!user) {
+      showLogin();
+      return;
+    }
     state.user = user;
     showAppShell();
     await enterApp();

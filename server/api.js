@@ -10,6 +10,7 @@ import {
   setSessionCookie,
   clearSessionCookie,
   publicUser,
+  currentUser,
 } from './auth.js';
 import { pool } from './db.js';
 import { addClient, notify } from './events.js';
@@ -282,8 +283,11 @@ api.post('/auth/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-api.get('/auth/me', requireAuth, (req, res) => {
-  res.json({ user: publicUser(req.user) });
+// Returns 200 with { user: null } when signed out (instead of 401) so the
+// browser console stays clean for the logged-out landing page.
+api.get('/auth/me', async (req, res) => {
+  const user = await currentUser(req);
+  res.json({ user: user ? publicUser(user) : null });
 });
 
 api.post(
